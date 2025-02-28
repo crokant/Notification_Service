@@ -54,7 +54,6 @@ public class AuthControllerTest {
         request.setEmail("test@example.com");
         request.setPassword("password");
 
-        // Указываем, что метод registerUser ничего не делает
         doNothing().when(userService).registerUser(any(String.class), any(String.class), any(String.class));
 
         mockMvc.perform(post("/register")
@@ -71,7 +70,6 @@ public class AuthControllerTest {
         request.setEmail("test@example.com");
         request.setPassword("password");
 
-        // Указываем, что метод registerUser выбрасывает исключение
         doThrow(new RuntimeException("Ошибка регистрации")).when(userService).registerUser(any(String.class), any(String.class), any(String.class));
 
         mockMvc.perform(post("/register")
