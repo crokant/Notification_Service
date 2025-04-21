@@ -2,6 +2,7 @@ package com.icispp.notificationservice.controllers;
 
 
 import com.icispp.notificationservice.dto.UserInfoResponse;
+import com.icispp.notificationservice.exception.ServerException;
 import com.icispp.notificationservice.models.Subscription;
 import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
@@ -31,18 +32,22 @@ public class PersonalOfficeController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
+    public ResponseEntity<UserInfoResponse> getUserInfo(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
-        if (token != null && jwtUtil.validateToken(token)) {
-            String username = jwtUtil.getUsernameFromToken(token);
 
-            Optional<User> userOptional = userService.findByName(username);
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                return ResponseEntity.ok(new UserInfoResponse(user.getName(), user.getEmail(), "user"));
-            }
+        if(token == null || !jwtUtil.validateToken(token)){
+            throw new ServerException(HttpStatus.UNAUTHORIZED, "Неверный токен");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный токен или пользователь не найден.");
+        String username = jwtUtil.getUsernameFromToken(token);
+
+        Optional<User> userOptional = userService.findByName(username);
+
+        if(userOptional.isEmpty()){
+            throw new ServerException(HttpStatus.NOT_FOUND, "Пользователь не найден");
+        }
+
+        User user = userOptional.get();
+        return ResponseEntity.ok(new UserInfoResponse(user.getName(), user.getEmail(), "user"));
     }
 
     @GetMapping("/mailings")

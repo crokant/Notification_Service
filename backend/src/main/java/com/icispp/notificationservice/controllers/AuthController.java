@@ -3,9 +3,11 @@ package com.icispp.notificationservice.controllers;
 import com.icispp.notificationservice.dto.AuthRequest;
 import com.icispp.notificationservice.dto.AuthResponse;
 import com.icispp.notificationservice.dto.RegisterRequest;
+import com.icispp.notificationservice.exception.ServerException;
 import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +25,12 @@ import java.util.Map;
  * Предоставляет методы для регистрации и входа в систему.
  */
 @RestController
+@Slf4j
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager; // Менеджер аутентификации
-    private final JwtUtil jwtUtil; // Утилита для работы с JWT
-    private final UserService userService; // Сервис для работы с пользователями
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final UserService userService;
 
     /**
      * Конструктор класса AuthController.
@@ -56,15 +59,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         if (userService.wasUsernameUsed(request.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Пользователь с таким именем уже существует");
+            throw new ServerException(HttpStatus.CONFLICT, "Пользователь с таким именем уже существует" );
         }
-        try {
-            userService.registerUser(request.getUsername(), request.getEmail(), request.getPassword());
-            System.out.println("Пользователь успешно зарегистрирован: " + request.getUsername() + " " + request.getEmail());
-            return ResponseEntity.ok("Пользователь успешно зарегистрирован");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ошибка регистрации: " + e.getMessage());
-        }
+
+        userService.registerUser(request.getUsername(), request.getEmail(), request.getPassword());
+        log.info("Пользователь успешно зарегистрирован: " + request.getUsername() + " " + request.getEmail());
+
+        return ResponseEntity.ok("Пользователь успешно зарегистрирован");
     }
 
     /**
@@ -77,9 +78,9 @@ public class AuthController {
      * @return ResponseEntity с JWT токеном или сообщением об ошибке
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
+        log.info(authRequest.getUsername() + " " + authRequest.getPassword());
         try {
-            System.out.println(authRequest.getUsername() + " " + authRequest.getPassword());
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
@@ -87,7 +88,7 @@ public class AuthController {
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверные учетные данные");
+            throw new ServerException(HttpStatus.UNAUTHORIZED , "Неверные учетные данные");
         }
     }
 }

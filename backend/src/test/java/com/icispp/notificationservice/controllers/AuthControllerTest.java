@@ -1,30 +1,33 @@
-
 package com.icispp.notificationservice.controllers;
 
 import com.icispp.notificationservice.dto.AuthRequest;
 import com.icispp.notificationservice.dto.AuthResponse;
 import com.icispp.notificationservice.dto.RegisterRequest;
+import com.icispp.notificationservice.exception.ServerException;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-        import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ExtendWith(MockitoExtension.class)
 public class AuthControllerTest {
 
     @InjectMocks
@@ -39,79 +42,93 @@ public class AuthControllerTest {
     @Mock
     private UserService userService;
 
-    private MockMvc mockMvc;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
-    }
-
     @Test
-    public void testRegister_Success() throws Exception {
+    @DisplayName("Регистрация должна проходить успешно и возвращать статус OK с сообщением")
+    public void testRegister_Success() {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("testUser");
         request.setEmail("test@example.com");
         request.setPassword("password");
 
+        when(userService.wasUsernameUsed(request.getUsername())).thenReturn(false);
         doNothing().when(userService).registerUser(any(String.class), any(String.class), any(String.class));
 
-        mockMvc.perform(post("/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"testUser\", \"email\":\"test@example.com\", \"password\":\"password\"}"))
-                .andExpect(status().isOk());
+        ResponseEntity<String> response = authController.register(request);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Пользователь успешно зарегистрирован", response.getBody());
+
+        verify(userService, times(1)).wasUsernameUsed("testUser");
         verify(userService, times(1)).registerUser("testUser", "test@example.com", "password");
     }
 
     @Test
-    public void testRegister_Failure() throws Exception {
+    @DisplayName("Регистрация должна возвращать CONFLICT, если имя пользователя уже занято")
+    public void testRegister_Conflict() {
         RegisterRequest request = new RegisterRequest();
-        request.setUsername("testUser");
+        request.setUsername("existingUser");
         request.setEmail("test@example.com");
         request.setPassword("password");
 
-        doThrow(new RuntimeException("Ошибка регистрации")).when(userService).registerUser(any(String.class), any(String.class), any(String.class));
+        when(userService.wasUsernameUsed(request.getUsername())).thenReturn(true);
 
-        mockMvc.perform(post("/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"testUser\", \"email\":\"test@example.com\", \"password\":\"password\"}"))
-                .andExpect(status().isBadRequest());
-        verify(userService, times(1)).registerUser("testUser", "test@example.com", "password");
+        ServerException thrown = assertThrows(ServerException.class, () -> {
+            authController.register(request);
+        }, "Ожидалось ServerException при существующем пользователе");
+
+        assertEquals(HttpStatus.CONFLICT, thrown.getStatusCode());
+        assertTrue(thrown.getMessage().contains("Пользователь с таким именем уже существует"));
+
+        verify(userService, times(1)).wasUsernameUsed("existingUser");
+        verify(userService, never()).registerUser(any(String.class), any(String.class), any(String.class));
     }
 
-
     @Test
-    public void testLogin_Success() throws Exception {
+    @DisplayName("Логин должен проходить успешно и возвращать токен")
+    public void testLogin_Success() {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("testUser");
         authRequest.setPassword("password");
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(mock(Authentication.class));
+        Authentication mockedAuthentication = mock(Authentication.class);
+
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(mockedAuthentication);
         when(jwtUtil.generateToken("testUser")).thenReturn("mockToken");
 
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"testUser\", \"password\":\"password\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("mockToken"));
+        ResponseEntity<AuthResponse> response = authController.login(authRequest);
 
-        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("mockToken", response.getBody().getToken());
+
+        ArgumentCaptor<UsernamePasswordAuthenticationToken> authCaptor = ArgumentCaptor.forClass(UsernamePasswordAuthenticationToken.class);
+        verify(authenticationManager, times(1)).authenticate(authCaptor.capture());
+        assertEquals("testUser", authCaptor.getValue().getName());
+
         verify(jwtUtil, times(1)).generateToken("testUser");
     }
 
     @Test
-    public void testLogin_Failure() throws Exception {
+    @DisplayName("Логин должен возвращать UNAUTHORIZED при неверных учетных данных")
+    public void testLogin_Failure() {
         AuthRequest authRequest = new AuthRequest();
         authRequest.setUsername("testUser");
         authRequest.setPassword("wrongPassword");
 
-        doThrow(new RuntimeException("Неверные учетные данные")).when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        doThrow(new BadCredentialsException("Неверные учетные данные"))
+                .when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
 
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"username\":\"testUser\", \"password\":\"wrongPassword\"}"))
-                .andExpect(status().isUnauthorized());
+        ServerException thrown = assertThrows(ServerException.class, () -> {
+            authController.login(authRequest);
+        }, "Ожидалось ServerException при неудачной аутентификации");
+
+        assertEquals(HttpStatus.UNAUTHORIZED, thrown.getStatusCode());
+        assertTrue(thrown.getMessage().contains("Неверные учетные данные"));
 
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(jwtUtil, never()).generateToken(anyString());
     }
 }
