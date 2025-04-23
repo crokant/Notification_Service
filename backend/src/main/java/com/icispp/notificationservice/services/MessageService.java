@@ -4,7 +4,7 @@ import com.icispp.notificationservice.models.Message;
 import com.icispp.notificationservice.models.Subscription;
 import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.repositories.MessageRepository;
-import com.icispp.notificationservice.repositories.SubscriptionRepository;
+import com.icispp.notificationservice.repositories.SqlSubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +15,13 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final EmailServiceImpl emailService;
-
+    private final SqlSubscriptionRepository sqlSubscriptionRepository;
 
     @Autowired
-    public MessageService(MessageRepository messageRepository, SubscriptionRepository subscriptionRepository, EmailServiceImpl emailService) {
+    public MessageService(MessageRepository messageRepository, SqlSubscriptionRepository subscriptionRepository, EmailServiceImpl emailService) {
         this.messageRepository = messageRepository;
         this.emailService = emailService;
+        this.sqlSubscriptionRepository = subscriptionRepository;
     }
 
     public Message sendMessageToUser(String subject, String content, User user, Subscription subscription) {

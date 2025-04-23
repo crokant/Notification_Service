@@ -67,6 +67,7 @@ public class SqlSubscriptionRepository {
                 userId,
                 subscriptionId
         );
+
     }
 
     public void removeSubscriptionFromUser(Long userId, Long subscriptionId) {

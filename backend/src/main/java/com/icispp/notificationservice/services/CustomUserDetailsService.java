@@ -3,8 +3,8 @@ package com.icispp.notificationservice.services;
 
 import com.icispp.notificationservice.models.CustomUserDetails;
 import com.icispp.notificationservice.models.User;
-import com.icispp.notificationservice.repositories.UserRepository;
 
+import com.icispp.notificationservice.repositories.SqlUserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,17 +19,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final SqlUserRepository userRepository;
 
     @Autowired
-    public CustomUserDetailsService(UserRepository userRepository) {
+    public CustomUserDetailsService(SqlUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByName(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return new CustomUserDetails(user);
     }

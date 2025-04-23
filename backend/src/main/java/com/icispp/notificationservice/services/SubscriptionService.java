@@ -2,10 +2,11 @@ package com.icispp.notificationservice.services;
 
 import com.icispp.notificationservice.models.Subscription;
 import com.icispp.notificationservice.models.User;
-import com.icispp.notificationservice.repositories.SubscriptionRepository;
+import com.icispp.notificationservice.repositories.SqlSubscriptionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
 /**
  * Сервисный класс для управления подписками в сервисе уведомлений.
@@ -13,7 +14,7 @@ import java.util.Optional;
  * и поиска подписок по их идентификатору.
  *
  * <p>
- * {@link SubscriptionService} взаимодействует с {@link SubscriptionRepository}
+ * {@link SubscriptionService} взаимодействует с {@link SqlSubscriptionRepository}
  * для выполнения операций CRUD над сущностями подписок.
  * </p>
  *
@@ -25,7 +26,7 @@ import java.util.Optional;
 @Service
 public class SubscriptionService {
 
-    private final SubscriptionRepository subscriptionRepository;
+    private final SqlSubscriptionRepository subscriptionRepository;
 
     /**
      * Конструктор для создания нового SubscriptionService с указанным SubscriptionRepository.
@@ -33,7 +34,7 @@ public class SubscriptionService {
      * @param subscriptionRepository репозиторий, используемый для выполнения операций над подписками
      */
     @Autowired
-    public SubscriptionService(SubscriptionRepository subscriptionRepository) {
+    public SubscriptionService(SqlSubscriptionRepository subscriptionRepository) {
         this.subscriptionRepository = subscriptionRepository;
     }
 
@@ -44,7 +45,7 @@ public class SubscriptionService {
      * @return Optional, содержащий найденную подписку, или пустой Optional, если подписка не найдена
      */
     public Optional<Subscription> findById(Long id) {
-        return subscriptionRepository.findById(id);
+        return subscriptionRepository.findSubscriptionById(id);
     }
 
     /**
@@ -55,8 +56,12 @@ public class SubscriptionService {
      * @return обновленная подписка после добавления пользователя
      */
     public Subscription addUserToSubscription(User user, Subscription subscription) {
+        subscriptionRepository.addSubscriptionToUser(user.getId(), subscription.getId());
+        if (subscription.getSubscribers() == null) {
+            subscription.setSubscribers(new HashSet<>());
+        }
         subscription.getSubscribers().add(user);
-        return subscriptionRepository.save(subscription);
+        return subscription;
     }
 
     /**
@@ -71,6 +76,6 @@ public class SubscriptionService {
                 .name(name)
                 .creator(creator)
                 .build();
-        return subscriptionRepository.save(subscription);
+        return subscriptionRepository.createSubscription(creator.getId(), subscription);
     }
 }

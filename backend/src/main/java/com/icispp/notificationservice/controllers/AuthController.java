@@ -7,6 +7,7 @@ import com.icispp.notificationservice.exception.ServerException;
 import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.Map;
  * Контроллер для аутентификации пользователей.
  * Предоставляет методы для регистрации и входа в систему.
  */
+@Tag(name = "Auth")
 @RestController
 @Slf4j
 public class AuthController {

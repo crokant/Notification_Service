@@ -109,6 +109,42 @@ public class SqlUserRepository {
         return Optional.ofNullable(user);
     }
 
+    public Optional<User> findByUsername(String username) {
+        try {
+            User user = jdbcTemplate.queryForObject(
+                    "SELECT id, name, surname, email, phone_number, password " +
+                            "FROM app_user WHERE name = ?",
+                    USER_ROW_MAPPER,
+                    username
+            );
+
+            if (user != null) {
+                loadSubscriptions(user);
+            }
+            return Optional.ofNullable(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public boolean existsByName(String name) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM app_user WHERE name = ?",
+                Integer.class,
+                name
+        );
+        return count != null && count > 0;
+    }
+
+    public boolean existsByEmail(String email) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM app_user WHERE email = ?",
+                Integer.class,
+                email
+        );
+        return count != null && count > 0;
+    }
+
     // Добавление подписки
     public void addSubscriptionToUser(Long userId, Long subscriptionId) {
         jdbcTemplate.update(

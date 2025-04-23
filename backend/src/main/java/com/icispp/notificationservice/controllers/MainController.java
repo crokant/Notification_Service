@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Tag(name = "User API", description = "Operations with users")
+@Tag(name = "Home API", description = "Just telemetry")
 @RestController
 @RequestMapping("/api/v1")
 public class MainController {

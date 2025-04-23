@@ -1,127 +1,142 @@
 package com.icispp.notificationservice.services;
 
 import com.icispp.notificationservice.models.User;
-import com.icispp.notificationservice.repositories.UserRepository;
+import com.icispp.notificationservice.repositories.SqlUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
 
     @Mock
-    private UserRepository userRepository;
+    private SqlUserRepository userRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    private User testUser;
+
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setName("testUser");
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("plainPassword");
     }
 
     @Test
     void testFindById_Success() {
-        Long id = 1L;
-        User user = new User();
-        user.setId(id);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        Optional<User> result = userService.findById(1L);
 
-        Optional<User> result = userService.findById(id);
         assertTrue(result.isPresent());
-        assertEquals(id, result.get().getId());
+        assertEquals(1L, result.get().getId());
+        verify(userRepository).findById(1L);
     }
 
     @Test
     void testFindById_NotFound() {
-        Long id = 1L;
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        Optional<User> result = userService.findById(1L);
 
-        Optional<User> result = userService.findById(id);
-        assertFalse(result.isPresent());
+        assertTrue(result.isEmpty());
+        verify(userRepository).findById(1L);
     }
 
     @Test
-    void testRegisterUser() {
-        User user = new User();
-        user.setName("testUser");
-        user.setEmail("test@example.com");
-        user.setPassword("plainPassword");
+    void testRegisterUser_Success() {
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(userRepository.existsByName("testUser")).thenReturn(false);
+        when(passwordEncoder.encode("plainPassword")).thenReturn("encodedPassword");
+        when(userRepository.saveUser(any(User.class))).thenReturn(testUser);
 
-        when(passwordEncoder.encode(user.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(user)).thenReturn(user);
+        User result = userService.registerUser(testUser);
 
-        User result = userService.registerUser(user);
+        assertNotNull(result);
+        assertEquals("encodedPassword", result.getPassword());
+        verify(userRepository).existsByEmail("test@example.com");
+        verify(userRepository).existsByName("testUser");
+        verify(passwordEncoder).encode("plainPassword");
+        verify(userRepository).saveUser(any(User.class));
+    }
+
+
+    @Test
+    void testFindByUsername_Success() {
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(testUser));
+
+        Optional<User> result = userService.findByName("testUser");
+
+        assertTrue(result.isPresent());
+        assertEquals("testUser", result.get().getName());
+        verify(userRepository).findByUsername("testUser");
+    }
+
+    @Test
+    void testFindByUsername_NotFound() {
+        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+
+        Optional<User> result = userService.findByName("unknown");
+
+        assertTrue(result.isEmpty());
+        verify(userRepository).findByUsername("unknown");
+    }
+
+    @Test
+    void testValidatePassword_CorrectPassword() {
+        when(passwordEncoder.matches("plainPassword", "encodedPassword"))
+                .thenReturn(true);
+
+        boolean isValid = userService.validatePassword("plainPassword", "encodedPassword");
+
+        assertTrue(isValid);
+        verify(passwordEncoder).matches("plainPassword", "encodedPassword");
+    }
+
+    @Test
+    void testValidatePassword_WrongPassword() {
+        when(passwordEncoder.matches("wrongPassword", "encodedPassword"))
+                .thenReturn(false);
+
+        boolean isValid = userService.validatePassword("wrongPassword", "encodedPassword");
+
+        assertFalse(isValid);
+        verify(passwordEncoder).matches("wrongPassword", "encodedPassword");
+    }
+
+    @Test
+    void testRegisterUserWithDetails_Success() {
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(userRepository.existsByName("testUser")).thenReturn(false);
+        when(passwordEncoder.encode("plainPassword")).thenReturn("encodedPassword");
+        when(userRepository.saveUser(any(User.class))).thenReturn(testUser);
+
+        User result = userService.registerUser("testUser", "test@example.com", "plainPassword");
+
         assertNotNull(result);
         assertEquals("testUser", result.getName());
+        assertEquals("test@example.com", result.getEmail());
+        verify(userRepository).existsByEmail("test@example.com");
+        verify(userRepository).existsByName("testUser");
         verify(passwordEncoder).encode("plainPassword");
-        verify(userRepository).save(user);
-    }
-
-    @Test
-    void testRegisterUserWithDetails() {
-        String username = "testUser";
-        String email = "test@example.com";
-        String password = "plainPassword";
-
-        User user = new User();
-        user.setName(username);
-        user.setEmail(email);
-        user.setPassword("encodedPassword");
-
-        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        userService.registerUser(username, email, password);
-
-        verify(passwordEncoder).encode(password);
-        verify(userRepository).save(any(User.class));
-    }
-
-    @Test
-    void testFindByName_Success() {
-        String name = "testUser";
-        User user = new User();
-        user.setName(name);
-
-        when(userRepository.findByName(name)).thenReturn(Optional.of(user));
-
-        Optional<User> result = userService.findByName(name);
-        assertTrue(result.isPresent());
-        assertEquals(name, result.get().getName());
-    }
-
-    @Test
-    void testFindByName_NotFound() {
-        String name = "nonExistentUser";
-
-        when(userRepository.findByName(name)).thenReturn(Optional.empty());
-
-        Optional<User> result = userService.findByName(name);
-        assertFalse(result.isPresent());
-    }
-
-    @Test
-    void testValidatePassword() {
-        String rawPassword = "plainPassword";
-        String encodedPassword = "encodedPassword";
-
-        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
-
-        boolean isValid = userService.validatePassword(rawPassword, encodedPassword);
-        assertTrue(isValid);
-        verify(passwordEncoder).matches(rawPassword, encodedPassword);
+        verify(userRepository).saveUser(any(User.class));
     }
 }

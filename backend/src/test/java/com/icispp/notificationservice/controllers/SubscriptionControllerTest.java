@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,10 +26,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MainControllerTest {
+class SubscriptionControllerTest {
 
     @InjectMocks
-    private MainController mainController;
+    private SubscriptionController subscriptionController;
 
     @Mock
     private SubscriptionService subscriptionService;
@@ -40,29 +39,6 @@ class MainControllerTest {
 
     @Mock
     private UserService userService;
-
-    @Nested
-    @DisplayName("Tests for hello endpoint")
-    class HelloTests {
-        @Test
-        @DisplayName("Should return greeting message and origin")
-        void testHello_withOrigin() {
-            String originUrl = "http://example.com";
-            Map<String, String> response = mainController.hello(originUrl);
-            assertEquals("Hello from the server!", response.get("message"));
-            assertEquals(originUrl, response.get("origin"));
-            assertEquals(2, response.size());
-        }
-
-        @Test
-        @DisplayName("Should return greeting message and unknown origin when header is missing")
-        void testHello_withoutOrigin() {
-            Map<String, String> response = mainController.hello(null);
-            assertEquals("Hello from the server!", response.get("message"));
-            assertEquals("unknown", response.get("origin"));
-            assertEquals(2, response.size());
-        }
-    }
 
     @Nested
     @DisplayName("Tests for addUserToSubscription endpoint")
@@ -88,7 +64,7 @@ class MainControllerTest {
             when(userService.findById(validUserId)).thenReturn(Optional.of(user));
             when(subscriptionService.addUserToSubscription(user, subscription)).thenReturn(subscription);
 
-            ResponseEntity<Subscription> response = mainController.addUserToSubscription(validSubscriptionId, validUserId);
+            ResponseEntity<Subscription> response = subscriptionController.addUserToSubscription(validSubscriptionId, validUserId);
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
@@ -104,7 +80,7 @@ class MainControllerTest {
             Long invalidSubscriptionId = null;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.addUserToSubscription(invalidSubscriptionId, validUserId);
+                subscriptionController.addUserToSubscription(invalidSubscriptionId, validUserId);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Некоректный id рассылки", exception.getDescription());
@@ -117,7 +93,7 @@ class MainControllerTest {
             Long invalidSubscriptionId = 0L;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.addUserToSubscription(invalidSubscriptionId, validUserId);
+                subscriptionController.addUserToSubscription(invalidSubscriptionId, validUserId);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Некоректный id рассылки", exception.getDescription());
@@ -130,7 +106,7 @@ class MainControllerTest {
             Long invalidUserId = null;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.addUserToSubscription(validSubscriptionId, invalidUserId);
+                subscriptionController.addUserToSubscription(validSubscriptionId, invalidUserId);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Некоректный id пользователя", exception.getDescription());
@@ -143,7 +119,7 @@ class MainControllerTest {
             Long invalidUserId = 0L;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.addUserToSubscription(validSubscriptionId, invalidUserId);
+                subscriptionController.addUserToSubscription(validSubscriptionId, invalidUserId);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Некоректный id пользователя", exception.getDescription());
@@ -157,7 +133,7 @@ class MainControllerTest {
             when(subscriptionService.findById(validSubscriptionId)).thenReturn(Optional.empty());
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.addUserToSubscription(validSubscriptionId, validUserId);
+                subscriptionController.addUserToSubscription(validSubscriptionId, validUserId);
             });
 
             assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
@@ -174,7 +150,7 @@ class MainControllerTest {
             when(userService.findById(validUserId)).thenReturn(Optional.empty());
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.addUserToSubscription(validSubscriptionId, validUserId);
+                subscriptionController.addUserToSubscription(validSubscriptionId, validUserId);
             });
 
             assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
@@ -206,7 +182,7 @@ class MainControllerTest {
         void testSendMessageToSubscribers_Success() {
             when(subscriptionService.findById(validSubscriptionId)).thenReturn(Optional.of(subscription));
 
-            ResponseEntity<String> response = mainController.sendMessageToSubscribers(validSubscriptionId, validSubject, validContent);
+            ResponseEntity<String> response = subscriptionController.sendMessageToSubscribers(validSubscriptionId, validSubject, validContent);
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertEquals("Сообщение успешно отправлено", response.getBody());
@@ -220,7 +196,7 @@ class MainControllerTest {
             Long invalidSubscriptionId = null;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.sendMessageToSubscribers(invalidSubscriptionId, validSubject, validContent);
+                subscriptionController.sendMessageToSubscribers(invalidSubscriptionId, validSubject, validContent);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Некоректный id рассылки", exception.getDescription());
@@ -233,7 +209,7 @@ class MainControllerTest {
             Long invalidSubscriptionId = -5L;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.sendMessageToSubscribers(invalidSubscriptionId, validSubject, validContent);
+                subscriptionController.sendMessageToSubscribers(invalidSubscriptionId, validSubject, validContent);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Некоректный id рассылки", exception.getDescription());
@@ -246,7 +222,7 @@ class MainControllerTest {
             String invalidSubject = null;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.sendMessageToSubscribers(validSubscriptionId, invalidSubject, validContent);
+                subscriptionController.sendMessageToSubscribers(validSubscriptionId, invalidSubject, validContent);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Нельзя отправить сообщение без темы", exception.getDescription());
@@ -259,7 +235,7 @@ class MainControllerTest {
             String invalidSubject = "";
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.sendMessageToSubscribers(validSubscriptionId, invalidSubject, validContent);
+                subscriptionController.sendMessageToSubscribers(validSubscriptionId, invalidSubject, validContent);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Нельзя отправить сообщение без темы", exception.getDescription());
@@ -272,7 +248,7 @@ class MainControllerTest {
             String invalidContent = null;
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.sendMessageToSubscribers(validSubscriptionId, validSubject, invalidContent);
+                subscriptionController.sendMessageToSubscribers(validSubscriptionId, validSubject, invalidContent);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Нельзя отправить пустое сообщение", exception.getDescription());
@@ -285,7 +261,7 @@ class MainControllerTest {
             String invalidContent = "";
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.sendMessageToSubscribers(validSubscriptionId, validSubject, invalidContent);
+                subscriptionController.sendMessageToSubscribers(validSubscriptionId, validSubject, invalidContent);
             });
             assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
             assertEquals("Нельзя отправить пустое сообщение", exception.getDescription());
@@ -298,7 +274,7 @@ class MainControllerTest {
             when(subscriptionService.findById(validSubscriptionId)).thenReturn(Optional.empty());
 
             ServerException exception = assertThrows(ServerException.class, () -> {
-                mainController.sendMessageToSubscribers(validSubscriptionId, validSubject, validContent);
+                subscriptionController.sendMessageToSubscribers(validSubscriptionId, validSubject, validContent);
             });
 
             assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());

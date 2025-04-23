@@ -2,8 +2,8 @@ package com.icispp.notificationservice.services;
 
 import com.icispp.notificationservice.models.Subscription;
 import com.icispp.notificationservice.models.User;
-import com.icispp.notificationservice.repositories.SubscriptionRepository;
-import com.icispp.notificationservice.repositories.UserRepository;
+import com.icispp.notificationservice.repositories.SqlSubscriptionRepository;
+import com.icispp.notificationservice.repositories.SqlUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,9 +18,10 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository; // Репозиторий для работы с данными пользователей
-    private final SubscriptionRepository subscriptionRepository;
-    private final PasswordEncoder passwordEncoder; // Кодировщик паролей для безопасного хранения
+    private final SqlUserRepository userRepository;
+    private final SqlSubscriptionRepository subscriptionRepository;
+    private final PasswordEncoder passwordEncoder;
+
     /**
      * Конструктор класса UserService.
      *
@@ -28,7 +29,7 @@ public class UserService {
      * @param passwordEncoder Кодировщик паролей
      */
     @Autowired
-    public UserService(UserRepository userRepository, SubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder) {
+    public UserService(SqlUserRepository userRepository, SqlSubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.passwordEncoder = passwordEncoder;
@@ -53,7 +54,7 @@ public class UserService {
      */
     public User registerUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        return userRepository.saveUser(user);
     }
 
     /**
@@ -65,12 +66,13 @@ public class UserService {
      * @param password Пароль пользователя
      */
 
-    public void registerUser(String username, String email, String password) {
+    public User registerUser(String username, String email, String password) {
         User user = new User();
         user.setName(username);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
-        userRepository.save(user);
+        userRepository.saveUser(user);
+        return user;
     }
 
     /**
@@ -80,7 +82,7 @@ public class UserService {
      * @return true, если имя пользователя уже используется, иначе false
      */
     public boolean wasUsernameUsed(String username) {
-        return userRepository.findByName(username).isPresent();
+        return userRepository.existsByName(username);
     }
 
     /**
@@ -90,7 +92,7 @@ public class UserService {
      * @return Опциональный объект пользователя, если найден, иначе пустой объект
      */
     public Optional<User> findByName(String name) {
-        return userRepository.findByName(name);
+        return userRepository.findByUsername(name);
     }
 
     /**
@@ -100,7 +102,8 @@ public class UserService {
      * @return Список подписок пользователя
      */
     public List<Subscription> getUserSubscriptions(String name) {
-        return userRepository.getSubscriptionsByName(name);
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new RuntimeException("User not found"));
+        return subscriptionRepository.getUserSubscriptions(user.getId()).stream().toList();
     }
 
     /**
@@ -113,5 +116,4 @@ public class UserService {
     public boolean validatePassword(String rawPassword, String encodedPassword) {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
-
 }
