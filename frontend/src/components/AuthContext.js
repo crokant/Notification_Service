@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     // Проверяем токен при каждом рендере
     useEffect(() => {
         const token = localStorage.getItem('token');
+        console.log("Checking token:", token); // Отладка
         if (token && token.trim() !== '') {
             setIsAuthenticated(true);
         } else {
@@ -17,8 +18,18 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
+    const login = (token) => {
+        localStorage.setItem('token', token);
+        setIsAuthenticated(true);
+    };
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+    };
+
     return (
-        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

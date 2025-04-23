@@ -31,8 +31,8 @@ const Login = () => {
                     setMessage('Вы успешно вошли!');
                     navigate('/personal-office');
                 } else if (response.status === 401) {
-                    const errorMessage = await response.text();
-                    setMessage('Ошибка входа. Сервер описал проблему так: ' + errorMessage);
+                    const errorMessage = await response.json();
+                    setMessage('Ошибка входа. Сервер описал проблему так: ' + errorMessage.description);
                 } else {
                     setMessage('Произошла неизвестная ошибка. Пожалуйста, попробуйте позже.');
                 }

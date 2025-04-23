@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: NotificationService
+  datasource:
+    url: jdbc:postgresql://postgres:5432/NS_db
+    username: SA
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ronorothog2003@gmail.com
+    password: mjggntyypvhmxrqk
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+
+jwt:
+  secret: ${JWT_SECRET:default-secret}
+  expiration: 86400000
