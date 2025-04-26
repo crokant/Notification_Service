@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Tag(name = "Subs Api", description = "All what you need for working  with subscriptions")
 @RestController
-@RequestMapping("/api/v1/subscriptions")
+@RequestMapping("/api/")
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
@@ -36,18 +36,18 @@ public class SubscriptionController {
     }
 
     @Operation(summary = "Create new subscription")
-    @PostMapping("/create")
+    @PostMapping("v1/subscriptions/create")
     public Subscription createSubscription(@RequestParam String name, @RequestParam User creator) {
         return subscriptionService.createSubscription(name, creator);
     }
 
     @Operation(summary = "Add new user into subscription")
-    @PostMapping("/addUser")
+    @PostMapping("v1/subscriptions/addUser")
     public Subscription addUserToSubscription(@RequestParam User user, @RequestParam Subscription subscription) {
         return subscriptionService.addUserToSubscription(user, subscription);
     }
 
-    @PostMapping("/subscriptions/{subscriptionId}/addUser")
+    @PostMapping("v1/subscriptions/{subscriptionId}/addUser")
     public ResponseEntity<Subscription> addUserToSubscription(@PathVariable Long subscriptionId, @RequestParam Long userId) {
         if(userId == null || userId < 1) {
             throw new ServerException(HttpStatus.BAD_REQUEST, "Некоректный id пользователя");
@@ -67,7 +67,7 @@ public class SubscriptionController {
         Subscription subscription = subscriptionService.addUserToSubscription(userOptional.get(), subscriptionOptional.get());
         return ResponseEntity.ok(subscription);
     }
-    @PostMapping("/subscriptions/{subscriptionId}/sendMessage")
+    @PostMapping("v1/subscriptions/{subscriptionId}/sendMessage")
     public ResponseEntity<String> sendMessageToSubscribers(
             @PathVariable Long subscriptionId,
             @RequestParam String subject,

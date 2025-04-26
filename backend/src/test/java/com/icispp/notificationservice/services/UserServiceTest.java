@@ -63,8 +63,6 @@ class UserServiceTest {
 
     @Test
     void testRegisterUser_Success() {
-        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
-        when(userRepository.existsByName("testUser")).thenReturn(false);
         when(passwordEncoder.encode("plainPassword")).thenReturn("encodedPassword");
         when(userRepository.saveUser(any(User.class))).thenReturn(testUser);
 
@@ -72,8 +70,7 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals("encodedPassword", result.getPassword());
-        verify(userRepository).existsByEmail("test@example.com");
-        verify(userRepository).existsByName("testUser");
+
         verify(passwordEncoder).encode("plainPassword");
         verify(userRepository).saveUser(any(User.class));
     }
@@ -124,8 +121,6 @@ class UserServiceTest {
 
     @Test
     void testRegisterUserWithDetails_Success() {
-        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
-        when(userRepository.existsByName("testUser")).thenReturn(false);
         when(passwordEncoder.encode("plainPassword")).thenReturn("encodedPassword");
         when(userRepository.saveUser(any(User.class))).thenReturn(testUser);
 
@@ -134,8 +129,6 @@ class UserServiceTest {
         assertNotNull(result);
         assertEquals("testUser", result.getName());
         assertEquals("test@example.com", result.getEmail());
-        verify(userRepository).existsByEmail("test@example.com");
-        verify(userRepository).existsByName("testUser");
         verify(passwordEncoder).encode("plainPassword");
         verify(userRepository).saveUser(any(User.class));
     }

@@ -26,7 +26,7 @@ import java.util.Map;
  * Предоставляет методы для регистрации и входа в систему.
  */
 @Tag(name = "Auth")
-@RestController
+@RestController()
 @Slf4j
 public class AuthController {
 
@@ -58,7 +58,7 @@ public class AuthController {
      * @param request Запрос на регистрацию, содержащий имя пользователя, email и пароль
      * @return ResponseEntity с сообщением о результате регистрации
      */
-    @PostMapping("/register")
+    @PostMapping("api/v1/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         if (userService.wasUsernameUsed(request.getUsername())) {
             throw new ServerException(HttpStatus.CONFLICT, "Пользователь с таким именем уже существует" );
@@ -79,7 +79,7 @@ public class AuthController {
      * @param authRequest Запрос на аутентификацию, содержащий имя пользователя и пароль
      * @return ResponseEntity с JWT токеном или сообщением об ошибке
      */
-    @PostMapping("/login")
+    @PostMapping("api/v1/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
         log.info(authRequest.getUsername() + " " + authRequest.getPassword());
         try {

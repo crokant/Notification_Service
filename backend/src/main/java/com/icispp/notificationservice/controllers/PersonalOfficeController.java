@@ -7,6 +7,7 @@ import com.icispp.notificationservice.models.Subscription;
 import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import java.util.Optional;
 
 @Tag(name = "Personal office API", description = "All what you need for personal office page")
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/")
 public class PersonalOfficeController {
 
     private final UserService userService;
@@ -33,7 +34,8 @@ public class PersonalOfficeController {
         this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping("/info")
+    @Operation(description = "Get information about user, use token to provided info")
+    @GetMapping("v1/user/info")
     public ResponseEntity<UserInfoResponse> getUserInfo(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request);
 
@@ -52,21 +54,25 @@ public class PersonalOfficeController {
         return ResponseEntity.ok(new UserInfoResponse(user.getName(), user.getEmail(), "user"));
     }
 
-    @GetMapping("/mailings")
+    @Operation(description = "Get user mailings, use token to provided info")
+    @GetMapping("v1/user/mailings")
     public ResponseEntity<?> getMailings(HttpServletRequest request){
         String token = jwtUtil.resolveToken(request);
-        if (token != null && jwtUtil.validateToken(token)) {
-            String username = jwtUtil.getUsernameFromToken(token);
 
-            Optional<User> userOptional = userService.findByName(username);
-            if (userOptional.isPresent()) {
-                List<Subscription> mailings = userService.getUserSubscriptions(username);
-
-                return ResponseEntity.ok(mailings);
-            }
-
+        if(token == null || !jwtUtil.validateToken(token)){
+            throw new ServerException(HttpStatus.UNAUTHORIZED, "Неверный токен");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неверный токен или пользователь не найден.");
+        String username = jwtUtil.getUsernameFromToken(token);
+
+        Optional<User> userOptional = userService.findByName(username);
+
+        if(userOptional.isEmpty()){
+            throw new ServerException(HttpStatus.NOT_FOUND, "Пользователь не найден");
+        }
+
+        List<Subscription> mailings = userService.getUserSubscriptions(username);
+
+        return ResponseEntity.ok(mailings);
     }
 
 }

@@ -4,6 +4,7 @@ import com.icispp.notificationservice.dto.AuthRequest;
 import com.icispp.notificationservice.dto.AuthResponse;
 import com.icispp.notificationservice.dto.RegisterRequest;
 import com.icispp.notificationservice.exception.ServerException;
+import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
 
@@ -51,7 +52,9 @@ public class AuthControllerTest {
         request.setPassword("password");
 
         when(userService.wasUsernameUsed(request.getUsername())).thenReturn(false);
-        doNothing().when(userService).registerUser(any(String.class), any(String.class), any(String.class));
+        User user = new User();
+
+        doReturn(user).when(userService).registerUser(any(String.class), any(String.class), any(String.class));
 
         ResponseEntity<String> response = authController.register(request);
 

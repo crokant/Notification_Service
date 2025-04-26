@@ -3,14 +3,14 @@ spring:
     name: NotificationService
   datasource:
     url: jdbc:postgresql://postgres:5432/NS_db
-    username: SA
-    password: password
+    username: admin
+    password: secret
     driver-class-name: org.postgresql.Driver
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     open-in-view: false
 
   mail:

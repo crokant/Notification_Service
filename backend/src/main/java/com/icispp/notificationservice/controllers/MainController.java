@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @Tag(name = "Home API", description = "Just telemetry")
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api")
 public class MainController {
 
     private final SubscriptionService subscriptionService;
@@ -36,7 +36,7 @@ public class MainController {
         this.userService = userService;
     }
 
-    @GetMapping("/health")
+    @GetMapping("v1/health")
     public Map<String, String> hello(@RequestHeader(value = "Origin", required = false) String origin) {
         logger.info("Received request from origin: {}", origin);
 
