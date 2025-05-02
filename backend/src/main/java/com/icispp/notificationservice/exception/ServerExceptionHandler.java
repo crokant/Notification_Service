@@ -13,6 +13,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
@@ -42,6 +43,15 @@ public class ServerExceptionHandler extends ResponseEntityExceptionHandler {
             @NotNull HttpHeaders headers,
             @NotNull HttpStatusCode status,
             @NotNull WebRequest request) {
+        return handleIncorrectRequest(ex, status);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(
+            NoHandlerFoundException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
         return handleIncorrectRequest(ex, status);
     }
 

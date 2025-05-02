@@ -8,4 +8,6 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <include file="00-initial-schema.sql"/>
+    <include file="01-add-message.sql"/>
+
 </databaseChangeLog>
