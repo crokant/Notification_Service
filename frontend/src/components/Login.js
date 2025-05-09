@@ -16,7 +16,7 @@ const Login = () => {
         e.preventDefault();
         if (username && password) {
             try {
-                const response = await fetch(`${apiUrl}/login`, {
+                const response = await fetch(`${apiUrl}/api/v1/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -12,7 +12,7 @@ function Home() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch(`${apiUrl}/api/hello`);
+                const response = await fetch(`${apiUrl}/api/v1/health`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
