@@ -1,8 +1,5 @@
 package com.icispp.notificationservice.controllers;
 
-import com.icispp.notificationservice.exception.ServerException;
-import com.icispp.notificationservice.models.Subscription;
-import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.MessageService;
 import com.icispp.notificationservice.services.SubscriptionService;
 import com.icispp.notificationservice.services.UserService;
@@ -10,13 +7,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Tag(name = "Home API", description = "Just telemetry")
 @RestController

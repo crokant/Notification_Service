@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
+import React, {useContext, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {AuthContext} from './AuthContext';
 import '../App.css';
 
 const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';

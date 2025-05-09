@@ -4,7 +4,6 @@ import com.icispp.notificationservice.dto.AuthRequest;
 import com.icispp.notificationservice.dto.AuthResponse;
 import com.icispp.notificationservice.dto.RegisterRequest;
 import com.icispp.notificationservice.exception.ServerException;
-import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,12 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 /**
  * Контроллер для аутентификации пользователей.

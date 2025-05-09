@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchWithAuth, postWithAuth } from '../utils/api'; // Утилита для запросов с авторизацией
-import { AuthContext } from './AuthContext'; // Импортируем контекст
+import {useNavigate} from 'react-router-dom';
+import {fetchWithAuth, postWithAuth} from '../utils/api'; // Утилита для запросов с авторизацией
+import {AuthContext} from './AuthContext'; // Импортируем контекст
 
 const PersonalOffice = () => {
     const [userInfo, setUserInfo] = useState(null);

@@ -6,7 +6,6 @@ import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,7 +52,7 @@ class PersonalOfficeControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody() instanceof UserInfoResponse, "Тело ответа должно быть типа UserInfoResponse");
+        assertInstanceOf(UserInfoResponse.class, response.getBody(), "Тело ответа должно быть типа UserInfoResponse");
         UserInfoResponse userInfoResponse = (UserInfoResponse) response.getBody();
         assertEquals("testUser", userInfoResponse.getName());
         assertEquals("test@example.com", userInfoResponse.getEmail());

@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
+import React, {useContext} from 'react';
+import {Link} from 'react-router-dom';
+import {AuthContext} from './AuthContext';
 
 const AuthLinks = () => {
     const { isAuthenticated } = useContext(AuthContext);

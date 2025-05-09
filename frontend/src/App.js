@@ -1,6 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import { AuthProvider } from './components/AuthContext';
+import {BrowserRouter as Router, Link, Route, Routes} from 'react-router-dom';
+import {AuthProvider} from './components/AuthContext';
 import AuthLinks from "./components/AuthLinks"
 import Home from './components/Home';
 import About from './components/About';
