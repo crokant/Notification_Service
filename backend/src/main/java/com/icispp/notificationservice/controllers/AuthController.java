@@ -26,23 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
-    private final UserService userService;
-
-    /**
-     * Конструктор класса AuthController.
-     *
-     * @param authenticationManager Менеджер аутентификации
-     * @param jwtUtil Утилита для работы с JWT
-     * @param userService Сервис для работы с пользователями
-     */
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        this.userService = userService;
-    }
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private UserService userService;
+
 
     /**
      * Регистрация нового пользователя.

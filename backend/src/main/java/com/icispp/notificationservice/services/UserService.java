@@ -17,23 +17,13 @@ import java.util.Optional;
  */
 @Service
 public class UserService {
-
-    private final SqlUserRepository userRepository;
-    private final SqlSubscriptionRepository subscriptionRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    /**
-     * Конструктор класса UserService.
-     *
-     * @param userRepository Репозиторий для работы с пользователями
-     * @param passwordEncoder Кодировщик паролей
-     */
     @Autowired
-    public UserService(SqlUserRepository userRepository, SqlSubscriptionRepository subscriptionRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.subscriptionRepository = subscriptionRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private SqlUserRepository userRepository;
+    @Autowired
+    private SqlSubscriptionRepository subscriptionRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     /**
      * Находит пользователя по его идентификатору.

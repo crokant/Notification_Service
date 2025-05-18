@@ -12,12 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/messages")
 public class MessageController {
 
-    private final MessageService messageService;
-
     @Autowired
-    public MessageController(MessageService messageService) {
-        this.messageService = messageService;
-    }
+    private MessageService messageService;
 
     @PostMapping("/sendToSubscribers")
     public void sendToSubscribers(@RequestParam String subject, @RequestParam String content, @RequestParam Subscription subscription) {

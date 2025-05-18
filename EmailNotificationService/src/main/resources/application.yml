@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: EmailNotificationService
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:29092
+      group-id: email-notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            value:
+              default:
+                type: com.icispp.emailnotificationservice.dto.SendEmailMessage
+
+# Mail Server Configuration (закомментировано для примера, как и в оригинале)
+# spring:
+#   mail:
+#     host: smtp.gmail.com
+#     port: 587
+#     username: your.email@gmail.com
+#     password: your_email_password # Использовать app-password для Gmail
+#     properties:
+#       mail:
+#         smtp:
+#           auth: true
+#           starttls:
+#             enable: true
+
+# Default sender email
+app:
+  mail:
+    sender-email: your.email@gmail.com

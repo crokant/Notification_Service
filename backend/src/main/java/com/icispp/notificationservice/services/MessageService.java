@@ -1,5 +1,7 @@
 package com.icispp.notificationservice.services;
 
+import com.icispp.notificationservice.dto.SendEmailMessage;
+import com.icispp.notificationservice.kafka.KafkaProducer;
 import com.icispp.notificationservice.models.Message;
 import com.icispp.notificationservice.models.Subscription;
 import com.icispp.notificationservice.models.User;
@@ -10,22 +12,24 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageService {
 
-    private final SqlMessageRepository messageRepository;
-    private final EmailServiceImpl emailService;
-    private final SqlSubscriptionRepository sqlSubscriptionRepository;
-
     @Autowired
-    public MessageService(SqlMessageRepository messageRepository, SqlSubscriptionRepository subscriptionRepository, EmailServiceImpl emailService) {
-        this.messageRepository = messageRepository;
-        this.emailService = emailService;
-        this.sqlSubscriptionRepository = subscriptionRepository;
-    }
+    private KafkaProducer kafkaProducer;
+    @Autowired
+    private SqlMessageRepository messageRepository;
+    @Autowired
+    private SqlSubscriptionRepository sqlSubscriptionRepository;
+
 
     public Message sendMessageToUser(String subject, String content, User user, Subscription subscription) {
+
+        SendEmailMessage sendEmailMessage = generateValuableKafkaMessage(subject, content, user, subscription);
+        kafkaProducer.sendEmailMessage(sendEmailMessage);
+
         Message message = Message.builder()
                 .subject(subject)
                 .content(content)
@@ -35,9 +39,16 @@ public class MessageService {
                 .delivered(false)
                 .build();
 
-        emailService.sendSimpleMailToUser(message, user);
-
         return messageRepository.save(message);
+    }
+
+    SendEmailMessage generateValuableKafkaMessage(String subject, String content, User user, Subscription subscription) {
+        return SendEmailMessage
+                .builder()
+                .subject(subject)
+                .from(subscription.getCreator().getName())
+                .to(subscription.getSubscribers().stream().map(User::getName).collect(Collectors.toSet()))
+                .build();
     }
 
     public void sendMessageToSubscribers(String subject, String content, Subscription subscription) {

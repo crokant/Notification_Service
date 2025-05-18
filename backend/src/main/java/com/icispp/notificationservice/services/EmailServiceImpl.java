@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 
 
+@Deprecated
 @Service
 public class EmailServiceImpl implements EmailService {
 

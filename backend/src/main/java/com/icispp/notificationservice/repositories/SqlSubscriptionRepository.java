@@ -18,8 +18,8 @@ import java.util.Set;
 
 @Repository
 public class SqlSubscriptionRepository {
-
-    private final JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private static final RowMapper<Subscription> SUBSCRIPTION_ROW_MAPPER = (rs, rowNum) ->
             Subscription.builder()
@@ -27,11 +27,6 @@ public class SqlSubscriptionRepository {
                     .name(rs.getString("name"))
                     .creator(User.builder().id(rs.getLong("creator_id")).build())
                     .build();
-
-    @Autowired
-    public SqlSubscriptionRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public Subscription createSubscription(Long creatorId, Subscription subscription) {
         KeyHolder keyHolder = new GeneratedKeyHolder();

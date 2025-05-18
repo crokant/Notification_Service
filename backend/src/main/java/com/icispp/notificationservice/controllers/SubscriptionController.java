@@ -21,18 +21,12 @@ import java.util.Optional;
 @RequestMapping("/api/")
 public class SubscriptionController {
 
-    private final SubscriptionService subscriptionService;
-    private final UserService userService;
-    private final MessageService messageService;
-
     @Autowired
-    public SubscriptionController(SubscriptionService subscriptionService,
-                                  UserService userService,
-                                  MessageService messageService) {
-        this.subscriptionService = subscriptionService;
-        this.userService = userService;
-        this.messageService = messageService;
-    }
+    private SubscriptionService subscriptionService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private MessageService messageService;
 
     @Operation(summary = "Create new subscription")
     @PostMapping("v1/subscriptions/create")

@@ -17,8 +17,8 @@ import java.util.Optional;
 
 @Repository
 public class SqlUserRepository {
-
-    private final JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private static final RowMapper<User> USER_ROW_MAPPER = (rs, rowNum) ->
             User.builder()
@@ -29,11 +29,6 @@ public class SqlUserRepository {
                     .phoneNumber(rs.getString("phone_number"))
                     .password(rs.getString("password"))
                     .build();
-
-    @Autowired
-    public SqlUserRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public User saveUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
