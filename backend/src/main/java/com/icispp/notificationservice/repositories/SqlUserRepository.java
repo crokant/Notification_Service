@@ -35,7 +35,7 @@ public class SqlUserRepository {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO app_user (name, surname, email, phone_number, password) " +
-                            "VALUES (?, ?, ?, ?, ?)",
+                            "VALUES (?, ?, ?, ?, ?) RETURNING id",
                     Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, user.getName());

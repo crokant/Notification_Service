@@ -75,7 +75,7 @@ public class AuthController {
             String token = jwtUtil.generateToken(authRequest.getUsername());
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             throw new ServerException(HttpStatus.UNAUTHORIZED , "Неверные учетные данные");
         }
     }
