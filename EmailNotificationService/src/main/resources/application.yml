@@ -2,6 +2,17 @@ spring:
   application:
     name: EmailNotificationService
 
+  mail:
+    host: smtp.mailersend.net
+    port: 587
+    username: MS_iS2O2W@test-69oxl5e8rv2l785k.mlsender.net
+    password: mssp.Olck4D4.pr9084zxrnjlw63d.CH3nMh5
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   kafka:
     consumer:
       bootstrap-servers: localhost:29092
@@ -16,21 +27,6 @@ spring:
               default:
                 type: com.icispp.emailnotificationservice.dto.SendEmailMessage
 
-# Mail Server Configuration (закомментировано для примера, как и в оригинале)
-# spring:
-#   mail:
-#     host: smtp.gmail.com
-#     port: 587
-#     username: your.email@gmail.com
-#     password: your_email_password # Использовать app-password для Gmail
-#     properties:
-#       mail:
-#         smtp:
-#           auth: true
-#           starttls:
-#             enable: true
-
-# Default sender email
 app:
   mail:
     sender-email: your.email@gmail.com
