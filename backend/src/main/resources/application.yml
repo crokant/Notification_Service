@@ -47,6 +47,29 @@ spring:
     topic:
       email-notifications: email-notifications
 
+management:
+  server:
+    port: 8082
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+        app:
+          scrape:
+            duration: true
+
+      percentiles:
+        tasks:
+          scheduled:
+            execution: 0.05,0.95,0.99
+
 server:
   port: 8080
   tomcat:
