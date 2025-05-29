@@ -166,7 +166,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: secret
     networks:
       - backend
-      -
+
+
 volumes:
   postgres_data:
 
