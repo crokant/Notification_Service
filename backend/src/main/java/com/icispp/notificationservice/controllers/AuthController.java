@@ -4,7 +4,6 @@ import com.icispp.notificationservice.dto.AuthRequest;
 import com.icispp.notificationservice.dto.AuthResponse;
 import com.icispp.notificationservice.dto.RegisterRequest;
 import com.icispp.notificationservice.exception.ServerException;
-import com.icispp.notificationservice.models.User;
 import com.icispp.notificationservice.services.UserService;
 import com.icispp.notificationservice.util.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,12 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 /**
  * Контроллер для аутентификации пользователей.
@@ -30,23 +26,13 @@ import java.util.Map;
 @Slf4j
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
-    private final UserService userService;
-
-    /**
-     * Конструктор класса AuthController.
-     *
-     * @param authenticationManager Менеджер аутентификации
-     * @param jwtUtil Утилита для работы с JWT
-     * @param userService Сервис для работы с пользователями
-     */
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        this.userService = userService;
-    }
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private UserService userService;
+
 
     /**
      * Регистрация нового пользователя.
@@ -89,7 +75,7 @@ public class AuthController {
             String token = jwtUtil.generateToken(authRequest.getUsername());
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             throw new ServerException(HttpStatus.UNAUTHORIZED , "Неверные учетные данные");
         }
     }

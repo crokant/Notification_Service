@@ -2,7 +2,6 @@ package com.icispp.notificationservice.exception;
 
 import com.icispp.notificationservice.dto.ExceptionResponse;
 import jakarta.validation.constraints.NotNull;
-import java.util.Arrays;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;

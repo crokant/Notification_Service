@@ -25,14 +25,10 @@ import java.util.Optional;
 @RequestMapping("/api/")
 public class PersonalOfficeController {
 
-    private final UserService userService;
-    private final JwtUtil jwtUtil;
-
     @Autowired
-    public PersonalOfficeController(UserService userService, JwtUtil jwtUtil) {
-        this.userService = userService;
-        this.jwtUtil = jwtUtil;
-    }
+    private UserService userService;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Operation(description = "Get information about user, use token to provided info")
     @GetMapping("v1/user/info")

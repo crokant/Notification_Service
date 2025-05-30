@@ -25,18 +25,8 @@ import java.util.Optional;
  */
 @Service
 public class SubscriptionService {
-
-    private final SqlSubscriptionRepository subscriptionRepository;
-
-    /**
-     * Конструктор для создания нового SubscriptionService с указанным SubscriptionRepository.
-     *
-     * @param subscriptionRepository репозиторий, используемый для выполнения операций над подписками
-     */
     @Autowired
-    public SubscriptionService(SqlSubscriptionRepository subscriptionRepository) {
-        this.subscriptionRepository = subscriptionRepository;
-    }
+    private SqlSubscriptionRepository subscriptionRepository;
 
     /**
      * Находит подписку по ее идентификатору.

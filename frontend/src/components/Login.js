@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
+import React, {useContext, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {AuthContext} from './AuthContext';
 import '../App.css';
 
 const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -16,7 +16,7 @@ const Login = () => {
         e.preventDefault();
         if (username && password) {
             try {
-                const response = await fetch(`${apiUrl}/login`, {
+                const response = await fetch(`${apiUrl}/api/v1/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

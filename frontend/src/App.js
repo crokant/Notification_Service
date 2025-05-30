@@ -1,6 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import { AuthProvider } from './components/AuthContext';
+import {BrowserRouter as Router, Link, Route, Routes} from 'react-router-dom';
+import {AuthProvider} from './components/AuthContext';
 import AuthLinks from "./components/AuthLinks"
 import Home from './components/Home';
 import About from './components/About';
@@ -26,7 +26,7 @@ const App = () => {
                                 <Link to="/about">О нас</Link>
                             </li>
                             <li>
-                                <Link to="/api">Документация API</Link>
+                                <Link to="/docks">Документация API</Link>
                             </li>
                             <li>
                                 <Link to="/business">Для бизнеса</Link>
@@ -38,7 +38,7 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
-                    <Route path="/api" element={<ApiDocumentation />} />
+                    <Route path="/docks" element={<ApiDocumentation />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/business" element={<Business />} />

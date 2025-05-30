@@ -3,6 +3,7 @@ package com.icispp.notificationservice.repositories;
 import com.icispp.notificationservice.models.Message;
 import com.icispp.notificationservice.models.Subscription;
 import com.icispp.notificationservice.models.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -17,12 +18,8 @@ import java.util.List;
 
 @Repository
 public class SqlMessageRepository {
-
-    private final JdbcTemplate jdbcTemplate;
-
-    public SqlMessageRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public Message save(Message message) {
         String sql = """

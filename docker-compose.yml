@@ -2,6 +2,66 @@ version: '2.2'
 
 services:
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: zookeeper1.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - backend
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka1.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      - backend
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka2.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "29093:29092"
+
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka2:9092,EXTERNAL://localhost:29093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      - backend
+
   backend:
     build:
       context: ./backend
@@ -10,17 +70,38 @@ services:
     networks:
       - backend
     depends_on:
-      - frontend
       - postgres
+      - kafka
+      - kafka2
     environment:
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/NS_db
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092,kafka2:9092
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  email-service:
+    build:
+      context: ./EmailNotificationService
+    container_name: email-notification-service
+    networks:
+      - backend
+    depends_on:
+      - kafka
+      - kafka2
+    environment:
+
+      SPRING_PROFILES_ACTIVE: docker # Или другой профиль, специфичный для этого сервиса
+
+      SPRING_KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:9092,kafka2:9092
+      SPRING_KAFKA_CONSUMER_GROUP_ID: email-notification-group
+      SPRING_KAFKA_CONSUMER_KEY_DESERIALIZER: org.apache.kafka.common.serialization.StringDeserializer
+      SPRING_KAFKA_CONSUMER_VALUE_DESERIALIZER: org.springframework.kafka.support.serializer.JsonDeserializer
+      SPRING_KAFKA_CONSUMER_PROPERTIES_SPRING_JSON_VALUE_DEFAULT_TYPE: com.icispp.emailnotificationservice.dto.SendEmailMessage
 
   frontend:
     build:
@@ -36,6 +117,8 @@ services:
     image: liquibase/liquibase:4.25
     depends_on:
       - postgres
+      - kafka
+      - kafka2
     command:
       - --changelog-file=master.xml
       - --driver=org.postgresql.Driver
@@ -60,6 +143,30 @@ services:
       POSTGRES_PASSWORD: secret
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: secret
+    networks:
+      - backend
+
 
 volumes:
   postgres_data:

@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: EmailNotificationService
+
+  mail:
+    host: smtp.mailersend.net
+    port: 587
+    username: MS_iS2O2W@test-69oxl5e8rv2l785k.mlsender.net
+    password: mssp.Olck4D4.pr9084zxrnjlw63d.CH3nMh5
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:29092
+      group-id: email-notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            value:
+              default:
+                type: com.icispp.emailnotificationservice.dto.SendEmailMessage
+
+app:
+  mail:
+    sender-email: your.email@gmail.com

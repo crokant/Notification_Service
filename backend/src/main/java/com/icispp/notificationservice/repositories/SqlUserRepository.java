@@ -11,12 +11,14 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class SqlUserRepository {
-
-    private final JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private static final RowMapper<User> USER_ROW_MAPPER = (rs, rowNum) ->
             User.builder()
@@ -28,17 +30,12 @@ public class SqlUserRepository {
                     .password(rs.getString("password"))
                     .build();
 
-    @Autowired
-    public SqlUserRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     public User saveUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
                     "INSERT INTO app_user (name, surname, email, phone_number, password) " +
-                            "VALUES (?, ?, ?, ?, ?)",
+                            "VALUES (?, ?, ?, ?, ?) RETURNING id",
                     Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, user.getName());

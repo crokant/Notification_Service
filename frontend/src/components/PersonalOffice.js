@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchWithAuth, postWithAuth } from '../utils/api'; // Утилита для запросов с авторизацией
-import { AuthContext } from './AuthContext'; // Импортируем контекст
+import {useNavigate} from 'react-router-dom';
+import {fetchWithAuth, postWithAuth} from '../utils/api'; // Утилита для запросов с авторизацией
+import {AuthContext} from './AuthContext'; // Импортируем контекст
 
 const PersonalOffice = () => {
     const [userInfo, setUserInfo] = useState(null);
@@ -22,7 +22,7 @@ const PersonalOffice = () => {
 
     const fetchData = async () => {
         try {
-            const userResponse = await fetchWithAuth('api/user/info', { method: 'GET' });
+            const userResponse = await fetchWithAuth('api/v1/user/info', { method: 'GET' });
             if (userResponse.ok) {
                 const userData = await userResponse.json();
                 setUserInfo(userData);
@@ -33,7 +33,7 @@ const PersonalOffice = () => {
                 console.error('Ошибка при загрузке информации о пользователе:', userResponse.status);
             }
 
-            const mailingsResponse = await fetchWithAuth('api/user/mailings', { method: 'GET' });
+            const mailingsResponse = await fetchWithAuth('api/v1/user/mailings', { method: 'GET' });
             if (mailingsResponse.ok) {
                 const mailingsData = await mailingsResponse.json();
                 setMailings(mailingsData);
@@ -60,7 +60,7 @@ const PersonalOffice = () => {
                 .filter((email) => email.trim() !== ''); // Убираем пустые строки
 
             // Отправляем данные на сервер
-            const response = await postWithAuth('/api/subscriptions/create', {
+            const response = await postWithAuth('/api/v1/subscriptions/create', {
                 ...newMailing,
                 emails: emailsArray, // Отправляем массив почт
             });

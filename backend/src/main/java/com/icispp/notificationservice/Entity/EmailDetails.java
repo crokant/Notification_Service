@@ -1,9 +1,9 @@
 package com.icispp.notificationservice.Entity;
 
+import com.icispp.notificationservice.models.Message;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.icispp.notificationservice.models.Message;
 
 @Data
 @AllArgsConstructor

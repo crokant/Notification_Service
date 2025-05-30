@@ -24,7 +24,7 @@ const Register = () => {
         const userData = { username: username, email, password };
 
         try {
-            const response = await axios.post(`${apiUrl}/register`, userData);
+            const response = await axios.post(`${apiUrl}/api/v1/register`, userData);
 
             if (response.status === 200) {
                 setMessage(response.data);

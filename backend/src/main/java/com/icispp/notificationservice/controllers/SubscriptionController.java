@@ -8,7 +8,6 @@ import com.icispp.notificationservice.services.SubscriptionService;
 import com.icispp.notificationservice.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.tags.Tags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +21,12 @@ import java.util.Optional;
 @RequestMapping("/api/")
 public class SubscriptionController {
 
-    private final SubscriptionService subscriptionService;
-    private final UserService userService;
-    private final MessageService messageService;
-
     @Autowired
-    public SubscriptionController(SubscriptionService subscriptionService,
-                                  UserService userService,
-                                  MessageService messageService) {
-        this.subscriptionService = subscriptionService;
-        this.userService = userService;
-        this.messageService = messageService;
-    }
+    private SubscriptionService subscriptionService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private MessageService messageService;
 
     @Operation(summary = "Create new subscription")
     @PostMapping("v1/subscriptions/create")

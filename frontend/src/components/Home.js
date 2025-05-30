@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
 import '../App.css';
 
 const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -12,7 +12,7 @@ function Home() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch(`${apiUrl}/api/hello`);
+                const response = await fetch(`${apiUrl}/api/v1/health`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
