@@ -12,6 +12,7 @@ import java.util.Set;
 @Data
 @Builder
 public class SendEmailMessage {
+    Long id;
     Set<String> to;
     String from;
     String subject;

@@ -21,9 +21,6 @@ public class MessageService {
     private KafkaProducer kafkaProducer;
     @Autowired
     private SqlMessageRepository messageRepository;
-    @Autowired
-    private SqlSubscriptionRepository sqlSubscriptionRepository;
-
 
     public Message sendMessageToUser(String subject, String content, User user, Subscription subscription) {
 
@@ -38,6 +35,14 @@ public class MessageService {
                 .sentAt(LocalDateTime.now())
                 .delivered(false)
                 .build();
+
+        return messageRepository.save(message);
+    }
+
+    public Message sendMessageToUser(Message message) {
+
+        SendEmailMessage sendEmailMessage = generateValuableKafkaMessage(message.getSubject(), message.getContent(), message.getUser(), message.getSubscription());
+        kafkaProducer.sendEmailMessage(sendEmailMessage);
 
         return messageRepository.save(message);
     }

@@ -154,6 +154,12 @@
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.icispp</groupId>
+            <artifactId>EmailNotificationService</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>

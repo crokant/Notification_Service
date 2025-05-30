@@ -1,6 +1,7 @@
 package com.icispp.emailnotificationservice.services;
 
 import com.icispp.emailnotificationservice.dto.SendEmailMessage;
+import com.icispp.emailnotificationservice.producer.KafkaProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,9 @@ public class EmailSenderService {
     private String email;
 
     @Autowired
+    private KafkaProducer kafkaProducer;
+
+    @Autowired
     private JavaMailSender mailSender;
     /**
      * Отправляет простое текстовое письмо всем адресатам.
@@ -37,6 +41,7 @@ public class EmailSenderService {
             mail.setText(message.getBody());
             mailSender.send(mail);
             log.info("Email sent to " + message.getTo());
+            kafkaProducer.produceSendedMassageId(message.getId());
             return true;
         } catch (MailException ex) {
             log.error("Не удалось отправить email", ex);
